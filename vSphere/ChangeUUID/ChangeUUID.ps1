@@ -7,16 +7,17 @@ Param(
 
 Connect-VIServer -Server $vCenterServer
 
-$content = Get-Content Path
+$content = Get-Content $Path
 
 foreach ($vmName in $content) {
-    $vm = Get-VM -Name $vmName
-    $PowerState = $vm.PowerState
-    $VMToolsState = $vm.Guest.State
 
-    if ($PowerState -eq 'PoweredOn'){
+    $vm = Get-VM -Name $vmName
+    $InitialPowerState = $vm.PowerState
+
+    if ($InitialPowerState -eq 'PoweredOn'){
+        $VMToolsState = $vm.Guest.State
         if ($VMToolsState -eq 'Running'){
-        Shutdown-VMGuest -VM $vm -Confirm:$false | Out-Null
+			Shutdown-VMGuest -VM $vm -Confirm:$false | Out-Null
         }
         else {
             Stop-VM -VM $vm -Confirm:$false | Out-Null
@@ -42,10 +43,11 @@ foreach ($vmName in $content) {
     $o = ("{0:X}" -f (Get-Random -Minimum 16 -Max 255)).ToLower()
     $p = ("{0:X}" -f (Get-Random -Minimum 16 -Max 255)).ToLower()
     $newUuid = "$a $b $c $d $e $f $g $h-$i $j $k $l $m $n $o $p"
-
-    while ($PowerState -eq 'PoweredOn'){
+	
+	$CurrentPowerState = (Get-VM -Name $vmName).PowerState
+    while ($CurrentPowerState -eq 'PoweredOn'){
         Start-Sleep -Seconds 2
-        $PowerState = (Get-VM -Name $vmName).PowerState
+        $CurrentPowerState = (Get-VM -Name $vmName).PowerState
     }
 
     $spec = New-Object VMware.Vim.VirtualMachineConfigSpec
@@ -53,8 +55,10 @@ foreach ($vmName in $content) {
     $vm.Extensiondata.ReconfigVM_Task($spec) | Out-Null
 
     $vm = Get-VM -Name $vmName
-    Start-VM -VM $vm | Out-Null
     Write-Host 'Новый UUID -' $vm.ExtensionData.Config.uuid '- ВМ' $vmName -ForegroundColor Green
+	if ($InitialPowerState -eq 'PoweredOn'){
+		Start-VM -VM $vm | Out-Null
+	}
 }
 
 Disconnect-VIServer -Server $vCenterServer -Confirm:$False 
