@@ -6,7 +6,7 @@
 ```
 - Запуск скрипта с указанием целевого vCenter и папки сохранения результатов:
 ```
-.\Get-EsxVmnics.ps1 -vCenterServer <vCenter_Name> -Folder C:\Temp
+.\Get-EsxVmnics.ps1 -vCenterServer <vCenter_Name> -Folder "C:\Temp"
 ```
 2. ChangeUUID.ps1 производит замену uuid.bios на вновь сгенерированный.
 - Запуск скрипта с указанием целевого vCenter (список ВМ должен быть в одной папке со скриптом):
@@ -15,5 +15,5 @@
 ```
 - Запуск скрипта с указанием целевого vCenter и пути до файла со списоком ВМ:
 ```
-.\ChangeUUID.ps1 -vCenterServer <vCenter_Name> -Path C:\Temp\ChangeUUID\vm_list.txt
+.\ChangeUUID.ps1 -vCenterServer <vCenter_Name> -Path "C:\Temp\ChangeUUID\vm_list.txt"
 ```
